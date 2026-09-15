@@ -13,9 +13,11 @@
 uint8_t MotorType = 3;                   // JGB style motor = 3
 uint8_t MotorEncoderPolarity = 0;
 
-int8_t car_forward[4] = {30, -30, -30, 30};       // Forward movement
-int8_t car_back[4] = {-30, 30, 30, -30};          // Backward movement
-int8_t car_stop[4] = {0, 0, 0, 0};                // Full stop 
+int8_t MAX_SPD = 30;
+
+int8_t car_forward[4] = { MAX_SPD, -MAX_SPD, -MAX_SPD,  MAX_SPD};  // Forward movement
+int8_t car_back[4]    = {-MAX_SPD,  MAX_SPD,  MAX_SPD, -MAX_SPD};  // Backward movement
+int8_t car_stop[4]    = {       0,        0,        0,        0};  // Full stop 
 
 bool WireWriteDataArray(uint8_t reg, uint8_t *val, unsigned int len) {
   Wire.beginTransmission(I2C_ADDR);
@@ -33,12 +35,17 @@ bool WireWriteDataArray(uint8_t reg, int8_t *val, unsigned int len) {
 
 void Running(int8_t running_mode[4]) // input is an array of 4 integers
 {
+  Serial.println("Starting Running...");
+  Serial.println(Wire.requestFrom(I2C_ADDR, 2));
   WireWriteDataArray(MOTOR_FIXED_SPEED_ADDR,running_mode,4);  //Perform the corresponding action.
-  delay(2000);
+  delay(1000);
   WireWriteDataArray(MOTOR_FIXED_SPEED_ADDR,car_stop,4);      // stop, works bc global var
+  Serial.println(Wire.requestFrom(I2C_ADDR, 2));
+  Serial.println("Ending Running...");
   delay(1000);
 
 }
+
 
 void setup() {
   Wire.begin();
@@ -51,8 +58,8 @@ void setup() {
 }
 
 void loop() {
-  Running(car_forward);
+  //Running(car_forward);              
   Running(car_back);
   Running(car_stop);
-
+  
 }
